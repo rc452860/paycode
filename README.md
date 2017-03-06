@@ -6,7 +6,7 @@
 改进自 [GO版本][1]
 修复算法生成时可能出现19位支付码的情况
 
-
+![certificate](./img/certificate.png)
 
 [RFC]: https://tools.ietf.org/html/rfc4226
 [1]: https://github.com/funkygao/paycode
