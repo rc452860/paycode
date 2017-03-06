@@ -124,10 +124,15 @@ public class HOTP {
      */
     public String next() throws Exception {
         long date = new Date().getTime() / (clock * 1000);
-        byte[] data = get8BitBytes(date);
-        byte[] sha1 = encodeHmacSHA(data, this.key.getBytes());
-        int snum = bytesToInt(dynamicTruncation(sha1));
+        // System.out.println(String.valueOf(date));
+        // byte[] data = get8BitBytes(date);
+        // TODO int类型HmacSHA1在Java 和 CryptoJs里加密后表现不一致
+        byte[] sha1 = encodeHmacSHA(String.valueOf(date).getBytes(), this.key.getBytes());
+        // System.out.println(Base64.encodeBase64String(sha1));
+        byte[] dt = dynamicTruncation(sha1);
+        int snum = bytesToInt(dt);
         snum = digist(BitEnum.FOUR, snum);
+        // System.out.println(snum);
         return generatorPayCode(fmt(BitEnum.FOUR, snum));
     }
 
@@ -174,10 +179,11 @@ public class HOTP {
 
     public int bytesToInt(byte[] arg) {
         assert arg.length == 4 : "byte array lenght must be 4!";
-        return (int) ((arg[0] & 0x7F << 24)
-                | ((arg[1] & 0xFF) << 16)
-                | ((arg[2] & 0xFF) << 8)
-                | ((arg[3] & 0xFF) << 0));
+        // TODO java 2's complement has sign so we extend a large type to fix sign
+        return (int) (((short)(arg[0] & 0x7F) << 24)
+                | ((short)(arg[1] & 0xFF) << 16)
+                | ((short)(arg[2] & 0xFF) << 8)
+                | ((short)(arg[3] & 0xFF) << 0));
     }
 
     public String leftPadding(BitEnum bit, int otp) {
